@@ -53,6 +53,8 @@ pip install fastapi uvicorn python-multipart pydantic
 uvicorn main:app --reload
 ```
 
+You are free to modify all existing code, plug in a database solution or add endpoints as you see fit.
+
 ---
 
 ## Submission Instructions
@@ -62,6 +64,7 @@ uvicorn main:app --reload
    - Setup instructions.
    - Screenshots or a brief walkthrough of your UX.
    - Any additional features you built.
+   - Any future improvements and features.
 3. Provide a zip or GitHub link for both frontend and backend code.
 
 ---
