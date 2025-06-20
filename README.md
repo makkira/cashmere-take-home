@@ -66,6 +66,7 @@ You are free to modify all existing code, plug in a database solution or add end
    - Any additional features you built.
    - Any future improvements and features.
 3. Provide a zip or GitHub link for both frontend and backend code.
+4. (optional) deploy the backend and frontend (e.g. Render, Heroku)
 
 ---
 
