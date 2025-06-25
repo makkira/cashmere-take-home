@@ -1,7 +1,7 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { usePortfolio } from "@/context/PortfolioContext";
-import { Calendar, ChevronDown, ChevronUp, Clock3, FileText, FileVideo, ImageIcon, Upload } from "lucide-react";
+import { Calendar, CheckCircle, ChevronDown, ChevronUp, Clock3, FileText, FileVideo, ImageIcon, Upload } from "lucide-react";
 import React, { useCallback, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -350,12 +350,10 @@ const SubmitButton = ({
     isFormFilled,
     uploading,
     hasValidFile,
-    error,
 }: {
     isFormFilled: boolean;
     uploading: boolean;
     hasValidFile: boolean;
-    error: string | null;
 }) => {
     return (
         <div>
@@ -372,12 +370,43 @@ const SubmitButton = ({
                         Upload File
                     </>
                 )}
-                {error && (
-                    <span className="text-red-500 text-sm mt-2 block">{error}</span>
-                )}
             </button>
         </div>
     );
+};
+
+export const Toast = ({ isVisible, type, message, onDismiss }: {
+    isVisible: boolean;
+    type: string;
+    message: string;
+    onDismiss: () => void
+}) => {
+    const isSuccess = type === "success";
+    const bgColor = isSuccess ? "bg-green-600" : "bg-red-600";
+    const Icon = isSuccess ? CheckCircle : FileText;
+
+    return (
+        <AnimatePresence>
+            {isVisible && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ duration: 0.3 }}
+                    className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2`}
+                >
+                    <Icon size={20} className="text-white" />
+                    <span>{message}</span>
+                    <button
+                        onClick={onDismiss}
+                        className="ml-4 text-white font-bold"
+                    >
+                        ×
+                    </button>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    )
 };
 
 export const UploadForm = () => {
@@ -391,6 +420,8 @@ export const UploadForm = () => {
     const [fileError, setFileError] = useState<string | null>(null);
     const [fileMetadata, setFileMetadata] = useState<FileMetadata>({});
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [toast, setToast] = useState({ visible: false, type: "success", message: "" });
+
     const fileInputRef = React.useRef<HTMLInputElement>(null!);
 
     const { preview, updatePreview, clearPreview } = useFilePreview();
@@ -501,6 +532,7 @@ export const UploadForm = () => {
                 setFileError(null);
                 setFileMetadata({});
                 setSelectedFile(null);
+                setToast({ visible: true, type: 'success', message: 'Upload successful!' });
                 reset();
             } catch (err) {
                 console.error(err);
@@ -509,6 +541,8 @@ export const UploadForm = () => {
                         ? err.message
                         : "Failed to upload file. Please try again.";
                 setError(errorMessage);
+                setToast({ visible: true, type: 'error', message: errorMessage });
+                setTimeout(() => setToast({ visible: true, type: 'error', message: errorMessage }), 4000);
             } finally {
                 setUploading(false);
             }
@@ -523,41 +557,48 @@ export const UploadForm = () => {
     console.log({ isFormFilled, uploading, hasValidFile });
 
     return (
-        <motion.div className="dark:bg-stone-200 rounded-lg shadow-md p-6 mb-6 mx-auto">
-            <FormHeader collapsed={collapsed} onToggle={toggleCollapsed} />
-            <AnimatePresence>
-                {!collapsed && (
-                    <motion.form onSubmit={handleSubmit(handleFormSubmit)} initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.4 }}
-                        className="space-y-6 overflow-hidden" >
+        <>
+            <motion.div className="dark:bg-stone-200 rounded-lg shadow-md p-6 mb-6 mx-auto">
+                <FormHeader collapsed={collapsed} onToggle={toggleCollapsed} />
+                <AnimatePresence>
+                    {!collapsed && (
+                        <motion.form onSubmit={handleSubmit(handleFormSubmit)} initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.4 }}
+                            className="space-y-6 overflow-hidden" >
 
-                        <FileInput
-                            isDragging={isDragging}
-                            setIsDragging={setIsDragging}
-                            onFileChange={handleFileChange}
-                            register={register}
-                            selectedFile={selectedFile}
-                            fileError={fileError}
-                            fileInputRef={fileInputRef}
-                        />
-                        {preview.url &&
-                            <div className="flex flex-row items-center gap-20">
-                                <PreviewMedia preview={preview} />
-                                <MetadataDisplay metadata={fileMetadata} />
-                            </div>
-                        }
-                        <FormFields register={register} />
-                        <SubmitButton
-                            isFormFilled={isFormFilled}
-                            uploading={uploading}
-                            hasValidFile={hasValidFile}
-                            error={error}
-                        />
-                    </motion.form>
-                )}
-            </AnimatePresence>
-        </motion.div>
+                            <FileInput
+                                isDragging={isDragging}
+                                setIsDragging={setIsDragging}
+                                onFileChange={handleFileChange}
+                                register={register}
+                                selectedFile={selectedFile}
+                                fileError={fileError}
+                                fileInputRef={fileInputRef}
+                            />
+                            {preview.url &&
+                                <div className="flex flex-row items-center gap-20">
+                                    <PreviewMedia preview={preview} />
+                                    <MetadataDisplay metadata={fileMetadata} />
+                                </div>
+                            }
+                            <FormFields register={register} />
+                            <SubmitButton
+                                isFormFilled={isFormFilled}
+                                uploading={uploading}
+                                hasValidFile={hasValidFile}
+                                error={error}
+                            />
+                        </motion.form>
+                    )}
+                </AnimatePresence>
+            </motion.div>
+            <Toast
+                isVisible={toast.visible}
+                type={toast.type}
+                message={toast.message}
+                onDismiss={() => setToast({ ...toast, visible: false })} />
+        </>
     );
 };
