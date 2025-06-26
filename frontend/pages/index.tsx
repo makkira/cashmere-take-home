@@ -1,6 +1,6 @@
 "use client";
 import { Geist, Geist_Mono } from "next/font/google";
-import { UploadForm } from "@/components/UploadForm";
+import { Toast, UploadForm } from "@/components/UploadForm";
 import { PortfolioPreview } from "@/components/ProtfolioPreview";
 import { usePortfolio } from "@/context/PortfolioContext";
 
@@ -15,7 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export default function Home() {
-  const { savePortfolio, loadPortfolio } = usePortfolio();
+  const { savePortfolio, loadPortfolio, hasMediaChanged } = usePortfolio();
+  console.log(hasMediaChanged)
   return (
     <div className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px]  gap-16  font-[family-name:var(--font-geist-sans)]`}>
       <div>
@@ -28,8 +29,9 @@ export default function Home() {
 
               <div className="flex gap-3">
                 <button
+                  disabled={!hasMediaChanged}
                   onClick={savePortfolio}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-stone-500 bg-stone-100 rounded-md hover:bg-stone-400  hover:text-white transition"
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-stone-500 rounded-md hover:bg-stone-800 transition disabled:text-stone-500 disabled:bg-stone-100"
                 >
                   Save
                 </button>

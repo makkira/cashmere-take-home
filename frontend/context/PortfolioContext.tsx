@@ -1,10 +1,12 @@
 "use client";
 
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { MediaItem } from "../types/types";
+import { useToast } from "./ToastContext";
 
 type PortfolioContextType = {
     mediaItems: MediaItem[];
+    hasMediaChanged: boolean;
     addMediaItem: (item: MediaItem) => void;
     setMediaItems: (items: MediaItem[]) => void;
     savePortfolio: () => Promise<void>;
@@ -24,11 +26,12 @@ export const usePortfolio = () => {
 
 export const PortfolioProvider = ({ children }: { children: ReactNode }) => {
     const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
-    const userId = "test-user"; // TODO: Replace with actual user ID logic
+    const originalMediaItems = useRef<MediaItem[]>([]);
 
-    useEffect(() => {
-        loadPortfolio();
-    }, []);
+    const { showToast } = useToast();
+
+    const userId = "test-user"; // TODO: Replace with actual user ID logic
+    const hasMediaChanged = JSON.stringify(mediaItems) !== JSON.stringify(originalMediaItems.current);
 
     const addMediaItem = (item: MediaItem) => {
         setMediaItems((prev) => [...prev, item]);
@@ -44,34 +47,42 @@ export const PortfolioProvider = ({ children }: { children: ReactNode }) => {
                 user_id: userId,
                 items: mediaItems,
             }),
+        }).then(() => {
+            showToast("Portfolio saved successfully", "success");
+            console.log("Portfolio saved successfully");
         }).catch((error) => {
+            showToast(`Error saving portfolio: ${error.message}`, "error");
             console.error("Error saving portfolio:", error);
         });
 
-        console.log("Portfolio saved successfully");
     }
 
     const loadPortfolio = async () => {
         fetch(`http://localhost:8000/load-portfolio/${userId}`)
             .then((res) => res.json())
             .then((data) => {
-                if (data.items) {
+                if (data.items > 0) {
                     setMediaItems(data.items);
+                    originalMediaItems.current = data.items; // Store the original items
+                    showToast("Portfolio loaded successfully", "success");
+
                     console.log("Loaded items:", data.items);
                     console.log("Portfolio loaded successfully");
                 } else {
+                    showToast("Please upload media first", "info");
                     console.warn("No items found in portfolio");
                 }
+                console.log("Portfolio loaded successfully");
+
             })
             .catch((error) => {
+                showToast(`Error loading portfolio: ${error.message}`, "error");
                 console.error("Error loading portfolio:", error.message)
             });
-
-        console.log("Portfolio loaded successfully");
     }
 
     return (
-        < PortfolioContext.Provider value={{ mediaItems, addMediaItem, setMediaItems, savePortfolio, loadPortfolio }}>
+        < PortfolioContext.Provider value={{ mediaItems, addMediaItem, setMediaItems, savePortfolio, loadPortfolio, hasMediaChanged }}>
             {children}
         </PortfolioContext.Provider >
     )
