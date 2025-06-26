@@ -147,65 +147,9 @@ def get_video_metadata(file_path: str):
         }
 
     except Exception as e:
-        print(f"❌ Error reading video metadata: {e}")
-        return {}
-    try:
-        # Get full metadata using ffprobe
-        probe = ffmpeg.probe(file_path)
-        video_stream = next((stream for stream in probe["streams"] if stream["codec_type"] == "video"), None)
-
-        if not video_stream:
-            print("❌ No video stream found.")
-            return {}
-
-        # Resolution
-        width = int(video_stream.get("width", 0))
-        height = int(video_stream.get("height", 0))
-        resolution = f"{width}x{height}"
-
-        # Aspect Ratio
-        aspect_ratio = f"{width}:{height}" if width and height else None
-
-        # Duration in seconds (float)
-        duration_sec = float(probe["format"].get("duration", 0))
-
-        # Convert duration to HH:MM:SS format
-        hours = int(duration_sec // 3600)
-        minutes = int((duration_sec % 3600) // 60)
-        seconds = int(duration_sec % 60)
-        duration_human = f"{hours:02}:{minutes:02}:{seconds:02}"
-
-        return {
-            "resolution": resolution,
-            "duration": duration_human,
-            "aspect_ratio": aspect_ratio
-        }
-    except Exception as e:
-        print(f"❌ Error reading video metadata: {e}")
-        return {}
-    try:
-        format_info = probe['format']
-        
-        cmd = [
-            "ffprobe", "-v", "error",
-            "-select_streams", "v:0",
-            "-show_entries", "format=duration",
-            "-of", "json",
-            file_path
-        ]
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        duration = None
-        if result.returncode == 0:
-            info = json.loads(result.stdout)
-            duration = float(info['format']['duration'])
-        return {"duration_seconds": duration}
-    except Exception:
+        print(f"rror reading video metadata: {e}")
         return {}
 
-    return {
-        "duration": "00:00:00",  # Placeholder
-        "resolution": "1920x1080"  # Placeholder
-    }
 
 @app.post("/upload")
 async def upload_file(
@@ -216,6 +160,7 @@ async def upload_file(
     ):
     
     file_id = str(uuid.uuid4())
+    original_filename = file.filename
     file_type = os.path.splitext(file.filename)[1]
     file_name = f"{file_id}{file_type}"
     file_path = os.path.join(UPLOAD_DIR, file_name)
@@ -233,7 +178,7 @@ async def upload_file(
         "id": file_id,
         "filename": file_name,
         "file_path": f"/uploads/{file_name}",
-        "original_filename": file.filename,
+        "original_filename": original_filename,
         "media_type": file.content_type,
         "title": title,
         "description": description,
