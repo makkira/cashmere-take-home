@@ -1,6 +1,6 @@
 "use client";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Toast, UploadForm } from "@/components/UploadForm";
+import { UploadForm } from "@/components/UploadForm";
 import { PortfolioPreview } from "@/components/ProtfolioPreview";
 import { usePortfolio } from "@/context/PortfolioContext";
 
@@ -16,6 +16,8 @@ const geistMono = Geist_Mono({
 
 export default function Home() {
   const { savePortfolio, loadPortfolio, canSave, canLoad } = usePortfolio();
+  const enabledStyle = "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-stone-500 rounded-md hover:bg-stone-800 transition";
+  const disabledStyle = "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-stone-500 rounded-md hover:bg-stone-800 transition disabled:text-stone-500 disabled:bg-stone-100";
   return (
     <div className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px]  gap-16  font-[family-name:var(--font-geist-sans)]`}>
       <div>
@@ -27,21 +29,42 @@ export default function Home() {
               </h1>
 
               <div className="flex gap-3">
-                <button
-                  disabled={!canSave}
-                  onClick={savePortfolio}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-stone-500 rounded-md hover:bg-stone-800 transition disabled:text-stone-500 disabled:bg-stone-100"
-                >
-                  Save
-                </button>
-                <button
-                  disabled={!canLoad}
-                  onClick={loadPortfolio}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-stone-500 rounded-md hover:bg-stone-800 transition disabled:text-stone-500 disabled:bg-stone-100"
-                >
-                  Load
-                </button>
+                {canSave ? (
+                  <button
+                    onClick={savePortfolio}
+                    className={enabledStyle}
+                  >
+                    Save
+                  </button>
+                ) : (
+                  <div title="No media uploaded or no changes to save">
+                    <button
+                      disabled
+                      className={disabledStyle}
+                    >
+                      Save
+                    </button>
+                  </div>
+                )}
+                {canLoad ? (
+                  <button
+                    onClick={loadPortfolio}
+                    className={enabledStyle}
+                  >
+                    Load
+                  </button>
+                ) : (
+                  <div title="No saved data or no changes since last save">
+                    <button
+                      disabled
+                      className={disabledStyle}
+                    >
+                      Load
+                    </button>
+                  </div>
+                )}
               </div>
+
             </div>
           </div>
         </header>
