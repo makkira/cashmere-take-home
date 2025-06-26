@@ -19,7 +19,7 @@ export const UploadForm = () => {
         mode: "onChange",
     });
 
-    const { addMediaItem, mediaItems } = usePortfolio();
+    const { addMediaItem } = usePortfolio();
     const { showToast } = useToast();
 
     const [collapsed, setCollapsed] = useState(false);
