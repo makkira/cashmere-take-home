@@ -15,8 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export default function Home() {
-  const { savePortfolio, loadPortfolio, hasMediaChanged } = usePortfolio();
-  console.log(hasMediaChanged)
+  const { savePortfolio, loadPortfolio, canSave, canLoad } = usePortfolio();
   return (
     <div className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px]  gap-16  font-[family-name:var(--font-geist-sans)]`}>
       <div>
@@ -29,15 +28,16 @@ export default function Home() {
 
               <div className="flex gap-3">
                 <button
-                  disabled={!hasMediaChanged}
+                  disabled={!canSave}
                   onClick={savePortfolio}
                   className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-stone-500 rounded-md hover:bg-stone-800 transition disabled:text-stone-500 disabled:bg-stone-100"
                 >
                   Save
                 </button>
                 <button
+                  disabled={!canLoad}
                   onClick={loadPortfolio}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-stone-500 rounded-md hover:bg-stone-800 transition"
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-stone-500 rounded-md hover:bg-stone-800 transition disabled:text-stone-500 disabled:bg-stone-100"
                 >
                   Load
                 </button>

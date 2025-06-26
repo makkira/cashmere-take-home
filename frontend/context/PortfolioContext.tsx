@@ -1,12 +1,14 @@
 "use client";
 
-import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { MediaItem } from "../types/types";
 import { useToast } from "./ToastContext";
 
 type PortfolioContextType = {
     mediaItems: MediaItem[];
     hasMediaChanged: boolean;
+    canSave: boolean;
+    canLoad: boolean;
     addMediaItem: (item: MediaItem) => void;
     setMediaItems: (items: MediaItem[]) => void;
     savePortfolio: () => Promise<void>;
@@ -26,12 +28,28 @@ export const usePortfolio = () => {
 
 export const PortfolioProvider = ({ children }: { children: ReactNode }) => {
     const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
-    const originalMediaItems = useRef<MediaItem[]>([]);
+    const [existingMediaItems, setExistingMediaItems] = useState<MediaItem[] | null>(null);
 
     const { showToast } = useToast();
 
     const userId = "test-user"; // TODO: Replace with actual user ID logic
-    const hasMediaChanged = JSON.stringify(mediaItems) !== JSON.stringify(originalMediaItems.current);
+
+    useEffect(() => {
+        loadPortfolio();
+    }, []);
+
+    const hasMediaChanged = useMemo(() => {
+        if (!existingMediaItems) return mediaItems.length > 0;
+        return JSON.stringify(mediaItems) !== JSON.stringify(existingMediaItems);
+
+    }, [mediaItems, existingMediaItems]);
+
+    const canSave = mediaItems.length > 0 && hasMediaChanged;;
+    const canLoad = useMemo(() => {
+        if (!existingMediaItems || existingMediaItems.length === 0) return false;
+
+        return hasMediaChanged;
+    }, [hasMediaChanged, existingMediaItems]);
 
     const addMediaItem = (item: MediaItem) => {
         setMediaItems((prev) => [...prev, item]);
@@ -48,6 +66,7 @@ export const PortfolioProvider = ({ children }: { children: ReactNode }) => {
                 items: mediaItems,
             }),
         }).then(() => {
+            setExistingMediaItems(mediaItems);
             showToast("Portfolio saved successfully", "success");
             console.log("Portfolio saved successfully");
         }).catch((error) => {
@@ -61,19 +80,11 @@ export const PortfolioProvider = ({ children }: { children: ReactNode }) => {
         fetch(`http://localhost:8000/load-portfolio/${userId}`)
             .then((res) => res.json())
             .then((data) => {
-                if (data.items > 0) {
-                    setMediaItems(data.items);
-                    originalMediaItems.current = data.items; // Store the original items
-                    showToast("Portfolio loaded successfully", "success");
+                setMediaItems(data.items);
+                setExistingMediaItems(data.items);
+                showToast("Portfolio loaded successfully", "success");
 
-                    console.log("Loaded items:", data.items);
-                    console.log("Portfolio loaded successfully");
-                } else {
-                    showToast("Please upload media first", "info");
-                    console.warn("No items found in portfolio");
-                }
-                console.log("Portfolio loaded successfully");
-
+                console.log("Portfolio loaded successfully:", data.items);
             })
             .catch((error) => {
                 showToast(`Error loading portfolio: ${error.message}`, "error");
@@ -82,7 +93,7 @@ export const PortfolioProvider = ({ children }: { children: ReactNode }) => {
     }
 
     return (
-        < PortfolioContext.Provider value={{ mediaItems, addMediaItem, setMediaItems, savePortfolio, loadPortfolio, hasMediaChanged }}>
+        < PortfolioContext.Provider value={{ mediaItems, addMediaItem, setMediaItems, savePortfolio, loadPortfolio, hasMediaChanged, canSave, canLoad }}>
             {children}
         </PortfolioContext.Provider >
     )
