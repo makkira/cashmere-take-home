@@ -3,7 +3,7 @@ __pycache__/
 *.pyc
 
 # Uploads
-/uploads/
+uploads/
 
 # Node
 node_modules/
