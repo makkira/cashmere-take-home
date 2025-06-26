@@ -4,6 +4,7 @@ import { usePortfolio } from "@/context/PortfolioContext";
 import { Calendar, CheckCircle, ChevronDown, ChevronUp, Clock3, FileText, FileVideo, ImageIcon, Upload } from "lucide-react";
 import React, { useCallback, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useToast } from "@/context/ToastContext";
 
 const CATEGORIES = [
     "Photography",
@@ -265,15 +266,23 @@ const FormFields = ({ register }: { register: any }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-stone-700 mb-2">
-                        Title
-                    </label>
+                    <div className="flex gap-2 ">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-stone-700 mb-2">
+                            Title
+
+                        </label>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            Max 80 Characters
+                        </p>
+                    </div>
                     <input
+                        maxLength={80}
                         type="text"
-                        {...register("title", { required: true })}
+                        {...register("title", { required: true, maxLength: 80 })}
                         className="w-full p-2 text-stone-800 border border-gray-300 rounded-md focus:ring-2 focus:ring-stone-500 focus:border-transparent"
                     />
                 </div>
+
                 {/* Categories dropdown */}
 
                 <div>
@@ -296,11 +305,19 @@ const FormFields = ({ register }: { register: any }) => {
 
             {/* Description textarea */}
             <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-stone-700 mb-2 mt-2">
-                    Description
-                </label>
+                <div className="flex gap-2 ">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-stone-700 mb-2">
+                        Description
+
+                    </label>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Max 150 Characters
+                    </p>
+                </div>
                 <textarea
-                    {...register("description", { required: true })}
+                    type="text"
+                    maxLength={150}
+                    {...register("description", { required: true, maxLength: 150 })}
                     rows={3}
                     className="w-full p-2 border border-gray-300 dark:text-stone-800 rounded-md focus:ring-2 focus:ring-stone-500 focus:border-transparent"
                 />
@@ -377,52 +394,19 @@ const SubmitButton = ({
     );
 };
 
-export const Toast = ({ isVisible, type, message, onDismiss }: {
-    isVisible: boolean;
-    type: string;
-    message: string;
-    onDismiss: () => void
-}) => {
-    const isSuccess = type === "success";
-    const bgColor = isSuccess ? "bg-green-600" : "bg-red-600";
-    const Icon = isSuccess ? CheckCircle : FileText;
-
-    return (
-        <AnimatePresence>
-            {isVisible && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    transition={{ duration: 0.3 }}
-                    className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2`}
-                >
-                    <Icon size={20} className="text-white" />
-                    <span>{message}</span>
-                    <button
-                        onClick={onDismiss}
-                        className="ml-4 text-white font-bold"
-                    >
-                        ×
-                    </button>
-                </motion.div>
-            )}
-        </AnimatePresence>
-    )
-};
-
 export const UploadForm = () => {
     const { register, handleSubmit, reset, watch, setValue, trigger } = useForm<FormData>({
         mode: "onChange",
     });
+
     const { addMediaItem, mediaItems } = usePortfolio();
+    const { showToast } = useToast();
 
     const [collapsed, setCollapsed] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const [fileError, setFileError] = useState<string | null>(null);
     const [fileMetadata, setFileMetadata] = useState<FileMetadata>({});
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [toast, setToast] = useState({ visible: false, type: "success", message: "" });
 
     const fileInputRef = React.useRef<HTMLInputElement>(null!);
 
@@ -534,7 +518,7 @@ export const UploadForm = () => {
                 setFileError(null);
                 setFileMetadata({});
                 setSelectedFile(null);
-                setToast({ visible: true, type: 'success', message: 'Upload successful!' });
+                showToast("File uploaded successfully!", "success");
                 reset();
             } catch (err) {
                 console.error(err);
@@ -543,8 +527,7 @@ export const UploadForm = () => {
                         ? err.message
                         : "Failed to upload file. Please try again.";
                 setError(errorMessage);
-                setToast({ visible: true, type: 'error', message: errorMessage });
-                setTimeout(() => setToast({ visible: true, type: 'error', message: errorMessage }), 4000);
+                showToast(`Error Uploading File: ${errorMessage}`, "error");
             } finally {
                 setUploading(false);
             }
@@ -555,8 +538,6 @@ export const UploadForm = () => {
     const toggleCollapsed = useCallback(() => {
         setCollapsed((prev) => !prev);
     }, []);
-
-    console.log({ isFormFilled, uploading, hasValidFile });
 
     return (
         <>
@@ -595,11 +576,6 @@ export const UploadForm = () => {
                     )}
                 </AnimatePresence>
             </motion.div>
-            <Toast
-                isVisible={toast.visible}
-                type={toast.type}
-                message={toast.message}
-                onDismiss={() => setToast({ ...toast, visible: false })} />
         </>
     );
 };
