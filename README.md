@@ -109,8 +109,8 @@ UI adjusts to window size.
 - Drag-and-drop rearranging in preview
 - Deploy
 
-Thank you for the opportunity!
-
 ## 🙌 Author
+
+### Thank you for the opportunity!
 
 Built by Rana Makki, 2025
