@@ -1,7 +1,7 @@
 "use client";
 import { Geist, Geist_Mono } from "next/font/google";
 import { UploadForm } from "@/components/UploadForm/UploadForm";
-import { PortfolioPreview } from "@/components/PortfolioPreview/ProtfolioPreview";
+import { PortfolioPreview } from "@/components/PortfolioPreview/PortfolioPreview";
 import { usePortfolio } from "@/context/PortfolioContext";
 
 const geistSans = Geist({
