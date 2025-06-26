@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { MediaItem } from "../types/types";
+import { MediaItem } from "../components/types/types";
 import { useToast } from "./ToastContext";
 
 type PortfolioContextType = {
