@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -6,15 +6,11 @@ from pydantic import BaseModel
 from PIL import Image
 from PIL import ExifTags
 import ffmpeg
-import sys
-from pprint import pprint 
-import subprocess
 from datetime import datetime, timezone
 from typing import List
 import os
 import shutil
 import uuid
-import time
 
 app = FastAPI()
 
@@ -98,7 +94,6 @@ def get_video_metadata(file_path: str):
         video_stream = next((s for s in probe["streams"] if s["codec_type"] == "video"), None)
 
         if not video_stream:
-            print("❌ No video stream found.")
             return {}
 
         width = int(video_stream.get("width", 0))
@@ -147,7 +142,7 @@ def get_video_metadata(file_path: str):
         }
 
     except Exception as e:
-        print(f"rror reading video metadata: {e}")
+        print(f"Error reading video metadata: {e}")
         return {}
 
 
@@ -191,13 +186,30 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 @app.post("/save-portfolio")
 async def save_portfolio(portfolio: Portfolio):
-    # TODO - Remove print
-    print(f"✅ Portfolio DB before save: {portfolio_db}")
     portfolio_db[portfolio.user_id] = portfolio.items
-    print(f"✅ Portfolio DB after save: {portfolio_db}")
-
     return {"message": "Portfolio saved successfully"}
 
 @app.get("/load-portfolio/{user_id}")
 async def load_portfolio(user_id: str):
     return {"items": portfolio_db.get(user_id, [])}
+
+@app.delete("/update-portfolio/{user_id}/{item_id}")
+async def delete_item(user_id: str, item_id: str):
+    items = portfolio_db.get(user_id, [])
+    if items is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+
+    item_to_go = None
+    for item in items:
+        if item.id == item_id:
+            item_to_go = item
+            break
+
+    if item_to_go is None:
+        raise HTTPException(status_code=404, detail="Media not found")
+    
+    items.remove(item_to_go)
+    portfolio_db[user_id] = items
+
+    return {"message": f"Item {item_id} deleted successfully"}

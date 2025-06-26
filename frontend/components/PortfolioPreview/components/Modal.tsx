@@ -1,8 +1,30 @@
+"use client";
 import { MediaItem, VideoMetadata } from "@/components/types/types";
+import { usePortfolio } from "@/context/PortfolioContext";
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
+import { Edit, Eraser, X } from "lucide-react";
+import { useCallback, useEffect } from "react";
 
 export const Modal = ({ item, isOpen, onClose }: { item: MediaItem; isOpen: boolean; onClose: () => void }) => {
+    const { deleteItem } = usePortfolio();
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        }
+    }, [isOpen]);
+
+    const handleEdit = useCallback(() => {
+
+    }, [])
+
+    // const handleDelete = useCallback(() => {
+
+    // }, [])
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -104,7 +126,7 @@ export const Modal = ({ item, isOpen, onClose }: { item: MediaItem; isOpen: bool
                                     <h3 className="text-sm font-semibold text-stone-700 dark:text-stone-700 uppercase tracking-wide">
                                         Created Date
                                     </h3>
-                                    <p className="text-stone-600 dark:text-stone-500 leading-relaxed">
+                                    <div className="text-stone-600 dark:text-stone-500 leading-relaxed">
                                         {item.technical_metadata?.creation_time ?
                                             < p className="text-stone-600 dark:text-stone-500 leading-relaxed">
                                                 {new Date(item.technical_metadata?.creation_time).toLocaleDateString()}
@@ -113,7 +135,7 @@ export const Modal = ({ item, isOpen, onClose }: { item: MediaItem; isOpen: bool
                                             < p className="text-stone-600 dark:text-stone-500 leading-relaxed">
                                                 'Unknown'
                                             </p>}
-                                    </p>
+                                    </div>
                                 </div>
 
                                 <div className="mb-2">
@@ -158,16 +180,30 @@ export const Modal = ({ item, isOpen, onClose }: { item: MediaItem; isOpen: bool
                                     <></>
                                 }
 
-
-
+                                <div className="flex flex-row gap-2 mt-10">
+                                    {/* <button
+                                        onClick={handleEdit}
+                                        className="flex row gap-2 p-2 transition-colors bg-stone-400 hover:bg-stone-500 rounded-lg"
+                                    >
+                                        <Eraser size={20} className="dark:text-stone-800 mr-1" />
+                                        Edit
+                                    </button> */}
+                                    <button
+                                        onClick={async () => {
+                                            await deleteItem(item);
+                                            onClose();
+                                        }}
+                                        className="flex row p-2 transition-colors bg-red-400 hover:bg-red-500 rounded-lg"
+                                    >
+                                        <Edit size={20} className="dark:text-stone-800 mr-1" />
+                                        Delete
+                                    </button>
+                                </div>
                             </div>
-
                         </motion.div>
                     </motion.div>
-
                 </>
-            )
-            }
+            )}
         </AnimatePresence >
     )
 }

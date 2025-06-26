@@ -101,7 +101,7 @@ export const PortfolioPreview = () => {
                                             {items.map((item) => (
                                                 <motion.div
                                                     key={item.id}
-                                                    className="bg-white dark:bg-stone-100 p-4 rounded-xl shadow-md border hover:shadow-lg transition-shadow"
+                                                    className="bg-white dark:bg-stone-100 p-4 rounded-xl shadow-md border hover:shadow-lg transition-shadow cursor-pointer"
                                                     initial={{ opacity: 0, y: 10 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     transition={{ delay: 0.05 }}
@@ -115,13 +115,13 @@ export const PortfolioPreview = () => {
                                                         <img
                                                             src={`http://localhost:8000/uploads/${item.filename}`}
                                                             alt={item.title}
-                                                            className="w-full h-64  rounded-md mb-3"
+                                                            className="w-full h-64 object-contain rounded-md mb-3"
                                                         />
                                                     ) : (
                                                         <video
                                                             src={`http://localhost:8000/uploads/${item.filename}`}
-                                                            controls
                                                             className="w-full h-64 object-cover rounded-md mb-3"
+                                                            controls
                                                         />
                                                     )}
 
