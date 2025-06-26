@@ -1,79 +1,116 @@
 # Cashmere Frontend Take Home
 
-Build a responsive, dynamic, single-page application using **Next.js** that allows users to create and manage a multimedia portfolio. Users should be able to:
+This is my submission for the Cashmere take-home assignment. It includes a full-stack application with frontend and backend components, designed to handle media uploads, delete media files and portfolio preview functionality.
 
-- Upload images and videos.
-- Provide descriptions and metadata for each item.
-- Organize portfolio items into expandable/collapsible sections.
-- View a live preview of the portfolio.
-- Save their portfolio by interacting with a backend API.
+Built with:
 
-You are encouraged to make the UI polished and user-friendly, and demonstrate thoughtful state management and code organization. Bonus points for animations, elegant component abstractions, or enhancements to UX.
+- ⚙️ **FastAPI** for backend file processing
+- ⚛️ **Next.js + TypeScript** for frontend
+- 🎨 **Tailwind CSS** for styling
 
-**🔎 You can use any coding tools that you like but you must be able to explain every line of code and what it does.**
+## 🚀 Setup Instructions
 
----
+### Start the backend (FastAPI)
 
-## Technical Requirements
-
-### Frontend (Next.js, React, Tailwind (optional))
-
-- **File Upload**:
-  - Allow image/video uploads via a form.
-  - Preview uploaded media before submitting.
-
-- **State Management**:
-  - Use React Context, Redux, or any state solution to manage portfolio state.
-
-- **Dynamic UI**:
-  - Show/hide metadata fields based on file type.
-  - Dynamically update portfolio preview as users make changes.
-
-- **Expandable/Collapsible Sections**:
-  - Group portfolio items into categories (e.g., "Photography", "Video Work").
-  - Each group should be collapsible.
-
-- **Persistence**:
-  - Send portfolio data to a backend via API.
-  - Allow users to save and then reload previously saved portfolios.
-
-- **Creative UI**:
-  - Provide a live visual preview area for the portfolio.
-  - Style and layout is up to you — treat this like a real-world portfolio site.
-
----
-
-## Backend
-**Completing the API**
-Please fill in the blank for the `POST /upload` endpoint to make the endpoint functional
-
-Run the server using the following:
 ```bash
-pip install fastapi uvicorn python-multipart pydantic
+cd backend
+pip install fastapi uvicorn pillow pydantic python-multipart ffmpeg-python
 uvicorn main:app --reload
 ```
 
-You are free to modify all existing code, plug in a database solution or add endpoints as you see fit.
+### Start the frontend (Next.js)
 
----
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-## Submission Instructions
+Then open: [http://localhost:3000](http://localhost:3000)
 
-1. Fork the GitHub starter repo or create your own.
-2. Include a `README.md` with:
-   - Setup instructions.
-   - Screenshots or a brief walkthrough of your UX.
-   - Any additional features you built.
-   - Any future improvements and features.
-3. Provide a zip or GitHub link for both frontend and backend code.
-4. (optional) deploy the backend and frontend (e.g. Render, Heroku)
+## 🗂 Project Structure
 
----
+```
+backend/
+├── main.py               # FastAPI app
 
-## Evaluation Criteria
+frontend/
+├── components/           # Modular UI components
+├── context/              # Global state (portfolio, toast)
+├── pages/                # Next.js routes
+├── styles/               # Global styles
+```
 
-- Code quality, modularity, and readability.
-- UX and UI polish.
-- Proper use of React patterns and state management.
-- Successful integration with FastAPI.
-- Creative enhancements beyond the core requirements.
+## 📡 Backend API Routes
+
+- `POST /upload`: Upload and extract media metadata
+- `POST /save-portfolio`: Save user's media portfolio
+- `GET /load-portfolio/{user_id}`: Load saved portfolio
+- `DELETE /update-portfolio/{user_id}/{item_id}`: Delete a specific media item
+
+## 🖼 Screenshots
+
+### Uploading Media & Preview With Dynamic Field
+
+Upload image or video files via drag-and-drop or file selector.
+
+![Add File](docs/upload.gif)
+
+### Portfolio Preview
+
+Live preview updates as files are added with expandable sections
+![Preview Demo](docs/preview.gif)
+
+### Modal Details
+
+Clicking a media item opens a modal with full metadata.  
+![Modal Video](docs/modal_video.png)
+![Modal Image](docs/modal_Image.png)
+
+### Save Portfolio
+
+Saving Portfolio
+![Save Portfolio Demo](docs/save.gif)
+
+### Load Portfolio
+
+Loading Portfolio
+![Save Portfolio Demo](docs/load.gif)
+
+### Delete Media
+
+Deleting media from local storage and database.  
+![Delete Demo](docs/delete.gif)
+
+### Responsive UI
+
+UI adjusts to window size.  
+![Responsive Demo](docs/responsive.gif)
+
+## 📸 Features
+
+- Upload images and videos with dynamic previews
+- Extract and display metadata:
+  - For **images**: resolution, creation time
+  - For **videos**: resolution, duration, aspect ratio, quality, creation time
+- View your media with full-screen modals
+- Dynamically update preview as you edit
+- Delete media (only saved items trigger a backend delete)
+- Save only enabled if there are unsaved media items
+- Load only when there is media uploaded
+- Toast notifications for all major user actions
+
+## 🔮 Future Improvements
+
+- Tests for Frontend and Backend
+- User authentication
+- Persistent database instead of in-memory storage
+- Editable metadata fields
+- Drag-and-drop rearranging in preview
+- Deploy
+
+Thank you for the opportunity!
+
+## 🙌 Author
+
+Built by Rana Makki, 2025
