@@ -7,6 +7,8 @@ import { useCallback, useEffect } from "react";
 
 export const Modal = ({ item, isOpen, onClose }: { item: MediaItem; isOpen: boolean; onClose: () => void }) => {
     const { deleteItem } = usePortfolio();
+
+    // disable page scroll when modal is open
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
@@ -16,14 +18,6 @@ export const Modal = ({ item, isOpen, onClose }: { item: MediaItem; isOpen: bool
             document.body.style.overflow = 'unset';
         }
     }, [isOpen]);
-
-    const handleEdit = useCallback(() => {
-
-    }, [])
-
-    // const handleDelete = useCallback(() => {
-
-    // }, [])
 
     return (
         <AnimatePresence>
@@ -181,13 +175,6 @@ export const Modal = ({ item, isOpen, onClose }: { item: MediaItem; isOpen: bool
                                 }
 
                                 <div className="flex flex-row gap-2 mt-10">
-                                    {/* <button
-                                        onClick={handleEdit}
-                                        className="flex row gap-2 p-2 transition-colors bg-stone-400 hover:bg-stone-500 rounded-lg"
-                                    >
-                                        <Eraser size={20} className="dark:text-stone-800 mr-1" />
-                                        Edit
-                                    </button> */}
                                     <button
                                         onClick={async () => {
                                             await deleteItem(item);
