@@ -187,12 +187,14 @@ const FileInput = ({
             setIsDragging(false);
             const files = e.dataTransfer.files;
 
-            if (files && files.length > 0) {
+            if (files[0] && (files[0].type.startsWith('image/') || files[0].type.startsWith('video/'))) {
                 const syntheticEvent = {
                     target: { files }
                 } as React.ChangeEvent<HTMLInputElement>;
 
                 handleInputChange(syntheticEvent);
+            } else {
+                alert("Please drop a valid image or video file.");
             }
         }, [onFileChange, setIsDragging]
     );
@@ -588,7 +590,6 @@ export const UploadForm = () => {
                                 isFormFilled={isFormFilled}
                                 uploading={uploading}
                                 hasValidFile={hasValidFile}
-                                error={error}
                             />
                         </motion.form>
                     )}
